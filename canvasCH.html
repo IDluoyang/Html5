@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>擦除效果clip</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #dddddd;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas" width="750" height="500" style="background-image: url(images/eg_smile.gif);background-size: cover"></canvas>
+<!--/* 方法1、使用clip()
+定义与用法： clip方法从原始画布上剪切任意形状和尺寸；
+提示：
+一旦剪切了某个区域，则所有之后的绘图都会被限制在被剪切的区域内（不能访问画布上的其他区域）。您也可以在使用 clip() 方法前通过使用 save() 方法对当前画布区域进行保存，并在以后的任意时间对其进行恢复（通过 restore() 方法）。
+
+ok，从以上信息所得，只要我们在canvas上剪切一块区域，然后清除所选区域所有信息，不就是相对于摩擦了嘛。提示：在剪切之前先save，执行完之后再restore一下；*/-->
+<!--<script type="text/javascript">
+
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var drawing = false;
+    ctx.fillStyle = "#00aeff";//填充颜色
+    ctx.fillRect(0, 0, canvas.width, canvas.height);//填充画布
+    ctx.fill();
+
+    //当鼠标点击的时候是在画圆
+    var radius = 25; //画圆的半径
+
+    function getBoundingClientRect(x, y) {//获取鼠标在canvas中的坐标
+        var box = canvas.getBoundingClientRect(); //获取canvas的距离浏览器视窗的上下左右距离
+        return {x: x - box.left, y: y - box.top}//"-"减号，x,y减去画布距离浏览器视窗的距离，才是鼠标在canvas中的坐标
+
+    }
+    function drawCanvas(x,y){
+        ctx.save();//先保存一下画布状态
+        ctx.beginPath();
+        ctx.arc(x,y,radius,0,Math.PI*2,false)//开始画圆,坐标为鼠标的坐标
+        ctx.clip();//用背景色画一个圆
+        ctx.clearRect(0,0,canvas.width,canvas.height)
+        ctx.restore()//恢复
+    }
+    canvas.onmousedown = function(e){//当鼠标按下时调用
+        var first = getBoundingClientRect(e.clientX,e.clientY);//调用getBoundingClientRect()方法获取鼠标的坐标
+        drawCanvas(first.x,first.y)//调用drawCanvas在当前坐标画圆
+        drawing = true;//设置可操作
+    }
+    canvas.onmousemove = function(e){//当鼠标移动时
+        if(drawing){//如果可操作就调用画圆的方法一直画圆
+            var move = getBoundingClientRect(e.clientX,e.clientY);
+            drawCanvas(move.x,move.y)
+        }
+    }
+    canvas.onmouseup = function(){//松开鼠标时
+        drawing = false;//设置为不可操作
+    }
+
+</script>-->
+
+<!--方法2、使用globalCompositeOperation
+定义和用法: globalCompositeOperation 属性设置或返回如何将一个源（新的）图像绘制到目标（已有）的图像上。
+
+源图像 = 您打算放置到画布上的绘图。
+目标图像 = 您已经放置在画布上的绘图。
+这里使用的是值是 destination-out --在源图像外显示目标图像。只有源图像外的目标图像部分会被显示，源图像是透明的.-->
+<script type="text/javascript">
+    var canvas = document.getElementById("canvas");
+    var ctx=canvas.getContext("2d");
+
+    ctx.fillStyle = "#00aeff";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fill();
+
+    var drawing = false;
+    var radius = 30; //线宽
+
+    ctx.lineWidth = radius;//设置线条宽度
+    ctx.lineCap = "round";//设置或返回两条线相交时，所创建的拐角类型 为圆角
+    ctx.lineJoin = "round";//设置或返回线条的结束端点样式为圆角
+    ctx.globalCompositeOperation = "destination-out";
+    //设置或返回新图像如何绘制到已有的图像上为在源图像外显示目标图像。只有源图像外的目标图像部分会被显示，源图像是透明的。目标图像是旧图，源图像是新图，新图放在旧图外，新图是透明的
+
+    function getBoundingClientRect(x,y){//获取鼠标在canvans上的坐标
+        var box = canvas.getBoundingClientRect(); //获取canvas的距离浏览器视窗的上下左右距离
+        return {x:x-box.left,  y:y-box.top }
+    }
+    canvas.onmousedown = function(e){//当鼠标按下时
+        var first = getBoundingClientRect(e.clientX,e.clientY);//调用getBoundingClientRect（）获取鼠标坐标
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(first.x,first.y);
+        drawing = true;
+    }
+    canvas.onmousemove = function(e){//鼠标移动时
+        if(drawing){
+
+            var move = getBoundingClientRect(e.clientX,e.clientY);
+            ctx.save();
+            ctx.lineTo(move.x,move.y);//画粗线条
+            ctx.stroke()
+            ctx.restore()
+        }
+    }
+    canvas.onmouseup = function(){//鼠标松开时
+        drawing = false;
+    }
+
+
+</script>
+
+</body>
+</html>
